@@ -1,0 +1,66 @@
+# ===================================
+# 사이트 기본 정보
+# ===================================
+title: "github pages"                  # 사이트 제목으로 변경하세요
+description: "just testflight"  # 한 줄 소개로 변경하세요
+url: "https://theodore-92.github.io"   # 본인 GitHub Pages 주소로 변경하세요
+baseurl: ""
+
+author:
+  name: "teddy"
+
+# ===================================
+# 테마 설정 (GitHub Pages용 remote_theme 방식)
+# ===================================
+remote_theme: fongandrew/hydeout
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# ===================================
+# 페이지네이션 (Hydeout 필수 설정)
+# index.md -> index.html 교체와 함께 적용됨
+# ===================================
+paginate: 5
+paginate_path: "/page:num/"
+
+# ===================================
+# 이미지 베이스 URL
+# 추후 Cloudflare R2/Images 등으로 이전 시
+# 이 한 줄만 수정하면 모든 글의 이미지 경로가 일괄 변경됨
+# ===================================
+image_base_url: "/assets/images/posts"
+
+# ===================================
+# Hydeout 테마 커스터마이징 변수
+# ===================================
+hydeout:
+  # 사이드바 정렬 (기본 좌측, true면 우측)
+  layout_reverse: false
+
+# ===================================
+# 댓글 설정 (Isso 사용 시)
+# Isso 서버 도메인이 정해지면 아래 주석 해제 후 입력
+# 예: https://comments.본인도메인.com
+# ===================================
+# isso_url: "https://comments.본인도메인.com"
+
+# ===================================
+# 마크다운/빌드 설정
+# ===================================
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM           # GitHub Flavored Markdown 지원
+  syntax_highlighter: rouge
+
+# Jekyll 빌드 시 제외할 파일/폴더
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - node_modules

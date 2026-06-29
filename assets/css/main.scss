@@ -1,0 +1,33 @@
+---
+# Jekyll needs front matter for SCSS files
+---
+
+// Hydeout 기본 변수를 오버라이드하려면 @import 전에 선언하세요.
+// 색상 코드는 원하는 값으로 자유롭게 변경하세요.
+
+$sidebar-bg-color: #202020;
+$sidebar-fg-color: white;
+$sidebar-sticky: true;
+$layout-reverse: false;
+$link-color: #268bd2;
+
+@import "hydeout";
+
+// ===================================
+// 이미지 모듈(img.html) 관련 추가 스타일
+// ===================================
+.post-image {
+  margin: 2rem 0;
+  text-align: center;
+
+  img {
+    max-width: 100%;
+    border-radius: 4px;
+  }
+
+  figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #777;
+  }
+}

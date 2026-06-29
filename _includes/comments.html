@@ -1,0 +1,13 @@
+{% comment %}
+  Hydeout 테마의 기본 comments.html(Disqus)을 덮어쓰는 파일입니다.
+  Isso 서버가 준비되면 _config.yml의 isso_url 주석을 해제하세요.
+
+  Isso 서버 세팅 전까지는 아래 블록이 아무것도 렌더링하지 않습니다.
+{% endcomment %}
+{% if site.isso_url %}
+<section class="post-comments">
+  <script data-isso="{{ site.isso_url }}/"
+          src="{{ site.isso_url }}/js/embed.min.js"></script>
+  <section id="isso-thread"></section>
+</section>
+{% endif %}

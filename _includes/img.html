@@ -1,0 +1,23 @@
+{% comment %}
+  이미지 출력용 공통 모듈
+
+  사용법:
+    {% include img.html name="2026-06-24-jekyll/cover.png" alt="설명 텍스트" %}
+    {% include img.html name="2026-06-24-jekyll/screenshot.png" alt="설명" caption="캡션 텍스트" %}
+    {% include img.html name="2026-06-24-jekyll/wide.png" alt="설명" width="600" %}
+
+  추후 이미지 호스팅을 Cloudflare R2/Images 등으로 옮길 때는
+  _config.yml의 image_base_url 한 줄만 수정하면 됩니다.
+  글 파일(.md)은 전혀 손댈 필요가 없습니다.
+{% endcomment %}
+<figure class="post-image">
+  <img
+    src="{{ site.image_base_url }}/{{ include.name }}"
+    alt="{{ include.alt | default: '' }}"
+    {% if include.width %}width="{{ include.width }}"{% endif %}
+    loading="lazy"
+  >
+  {% if include.caption %}
+    <figcaption>{{ include.caption }}</figcaption>
+  {% endif %}
+</figure>
