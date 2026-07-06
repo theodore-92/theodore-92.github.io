@@ -2,12 +2,12 @@
 # 사이트 기본 정보
 # ===================================
 title: "github pages"                  # 사이트 제목으로 변경하세요
-description: "just testflight"  # 한 줄 소개로 변경하세요
+description: "Backend developer,<br>Part-time traveler"  # 한 줄 소개로 변경하세요
 url: "https://theodore-92.github.io"   # 본인 GitHub Pages 주소로 변경하세요
 baseurl: ""
 
 author:
-  name: "teddy"
+  name: "Teddy"
 
 # ===================================
 # 테마 설정 (GitHub Pages용 remote_theme 방식)
@@ -43,11 +43,11 @@ hydeout:
   layout_reverse: false
 
 # ===================================
-# 댓글 설정 (Isso 사용 시)
-# Isso 서버 도메인이 정해지면 아래 주석 해제 후 입력
-# 예: https://comments.본인도메인.com
+# 댓글 설정 (Cloudflare Workers 백엔드)
+# Workers 배포 후 아래 주석 해제 후 입력
 # ===================================
-# isso_url: "https://comments.본인도메인.com"
+# comments_api_url: "https://your-worker.workers.dev"
+# turnstile_sitekey: "YOUR_SITE_KEY"   # Rate limit 보호용 (선택)
 
 # ===================================
 # 마크다운/빌드 설정
@@ -64,3 +64,4 @@ exclude:
   - Gemfile.lock
   - README.md
   - node_modules
+  - handoff

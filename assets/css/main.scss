@@ -14,10 +14,45 @@ $link-color: #268bd2;
 @import "hydeout";
 
 // ===================================
+// 헤딩 여백
+// ===================================
+.post-body h2,
+.post-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+// ===================================
+// 테이블 스타일
+// ===================================
+.post-content table,
+.post-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.9rem;
+
+  th, td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+
+  th {
+    background: #f4f4f4;
+    font-weight: 700;
+  }
+
+  tr:nth-child(even) td {
+    background: #fafafa;
+  }
+}
+
+// ===================================
 // 이미지 모듈(img.html) 관련 추가 스타일
 // ===================================
 .post-image {
-  margin: 2rem 0;
+  margin: 1rem 0;
   text-align: center;
 
   img {

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<style>
+body{margin:0;background:#f5f3ef;font-family:system-ui,sans-serif}
+</style>
+</helmet>
+
+<div style="background:#f7f5f0;padding:40px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#2b2b2b;display:flex;justify-content:center;">
+<div style="width:560px;">
+<div style="font-size:13px;font-weight:700;color:#2b2b2b;margin-bottom:16px;">댓글 5개</div>
+
+<div style="background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;padding:16px 18px;margin-bottom:12px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:14px;">김민준</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 09:12</span>
+</div>
+<div style="font-size:14px;line-height:1.65;margin-bottom:10px;">이 부분 설명 정말 명확하네요. <strong>감사합니다!</strong></div>
+<div style="display:flex;gap:8px;">
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">수정</button>
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+</div>
+<div style="margin-top:12px;margin-left:14px;background:#fbfaf7;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:12px 14px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:13.5px;">이서연</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 10:45</span>
+</div>
+<div style="font-size:13.5px;line-height:1.65;margin-bottom:8px;">저도 같은 생각이에요.</div>
+<div style="display:flex;gap:8px;">
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">수정</button>
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+</div>
+</div>
+<div style="margin-top:8px;margin-left:14px;background:#fbfaf7;border:1px solid #d64545;border-radius:8px;padding:12px 14px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:13.5px;">정하늘</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 11:03</span>
+<span style="font-size:11px;color:#d64545;font-weight:600;">삭제 확인</span>
+</div>
+<div style="font-size:13.5px;line-height:1.65;margin-bottom:8px;">저는 오히려 이 부분이 헷갈렸어요, 예시 하나만 더 있으면 좋겠네요.</div>
+<div style="font-size:12px;color:#767676;margin-bottom:8px;">삭제하면 되돌릴 수 없습니다. 비밀번호를 입력해 삭제를 확인해주세요.</div>
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+<input type="password" placeholder="비밀번호 확인" style="border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:6px 8px;font-size:11.5px;width:110px;">
+<button style="background:#d64545;color:#fff;border:none;border-radius:14px;padding:6px 14px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+<button style="background:none;color:#767676;border:none;font-size:11.5px;cursor:pointer;white-space:nowrap;">취소</button>
+</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(38,139,210,.35);border-left:4px solid #268bd2;border-radius:8px;padding:16px 18px 16px 16px;margin-bottom:12px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:14px;">블로그주인</span>
+<span style="font-size:10.5px;font-weight:700;color:#fff;background:#268bd2;border-radius:10px;padding:2px 9px;">ADMIN</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 12:00</span>
+</div>
+<div style="font-size:14px;line-height:1.65;margin-bottom:10px;">질문 감사합니다. 다음 포스트에서 다뤄볼게요.</div>
+<div style="display:flex;gap:8px;">
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">수정</button>
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+</div>
+<div style="margin-top:12px;margin-left:14px;background:#fbfaf7;border:1px solid #268bd2;border-radius:8px;padding:12px 14px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:13.5px;">박지훈</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 13:20</span>
+<span style="font-size:11px;color:#268bd2;font-weight:600;">수정 중</span>
+</div>
+<textarea style="width:100%;box-sizing:border-box;border:1px solid #268bd2;border-radius:6px;padding:8px 10px;font-size:13.5px;font-family:inherit;line-height:1.6;resize:vertical;min-height:52px;margin-bottom:8px;">진짜 유용한 정보네요, 감사합니다!</textarea>
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+<input type="password" placeholder="비밀번호 확인" style="border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:6px 8px;font-size:11.5px;width:110px;">
+<button style="background:#268bd2;color:#fff;border:none;border-radius:14px;padding:6px 14px;font-size:11.5px;font-weight:600;cursor:pointer;">저장</button>
+<button style="background:none;color:#767676;border:none;font-size:11.5px;cursor:pointer;white-space:nowrap;">취소</button>
+</div>
+</div>
+<div style="margin-top:8px;margin-left:14px;background:#fbfaf7;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:12px 14px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:13.5px;">최다은</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 13:47</span>
+</div>
+<div style="font-size:13.5px;line-height:1.65;margin-bottom:8px;">다음 포스트 기대할게요!</div>
+<div style="display:flex;gap:8px;">
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">수정</button>
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+</div>
+</div>
+</div>
+
+<div style="background:#efefec;border:1px dashed rgba(0,0,0,.15);border-radius:8px;padding:14px 18px;margin-bottom:12px;">
+<div style="font-size:13px;color:#9a9a9a;font-style:italic;">삭제된 댓글입니다.</div>
+<div style="margin-top:10px;margin-left:14px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:12px 14px;">
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px;">
+<span style="font-weight:700;font-size:13.5px;">최다은</span>
+<span style="font-size:11.5px;color:#999;">2026-07-01 15:02</span>
+</div>
+<div style="font-size:13.5px;line-height:1.65;margin-bottom:8px;">답변 기다리고 있었는데 궁금하네요!</div>
+<div style="display:flex;gap:8px;">
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">수정</button>
+<button style="background:#eef5fb;color:#268bd2;border:none;border-radius:14px;padding:4px 12px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;">삭제</button>
+</div>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;padding:18px;margin-top:18px;">
+<div style="font-size:13px;font-weight:700;margin-bottom:12px;">댓글 작성</div>
+<input placeholder="이름" style="width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:10px;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+<span style="font-size:11.5px;color:#767676;">마크다운 지원</span>
+<div style="display:flex;border-radius:14px;overflow:hidden;background:#eef2f5;">
+<span style="font-size:11px;padding:4px 10px;background:#268bd2;color:#fff;border-radius:14px;">실시간 미리보기</span>
+<span style="font-size:11px;padding:4px 10px;color:#767676;">제출 후 렌더링</span>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;">
+<textarea placeholder="**굵게**, _기울임_, `코드`, [링크](https://example.com) 처럼 마크다운을 사용할 수 있어요." style="border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;min-height:78px;resize:vertical;color:#a3a3a3;"></textarea>
+<div style="border:1px solid rgba(0,0,0,.08);border-radius:6px;padding:8px 10px;font-size:13px;line-height:1.65;color:#bbb;background:#fbfaf7;">미리보기가 여기에 표시됩니다.</div>
+</div>
+
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:14px;">
+<input type="password" placeholder="비밀번호" style="border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;font-size:13px;width:110px;">
+<button style="background:#268bd2;color:#fff;border:none;border-radius:16px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">댓글 등록</button>
+</div>
+</div>
+
+<div style="background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:8px;padding:18px;margin-top:12px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+<span style="font-size:13px;font-weight:700;">댓글 작성 — 다른 모드</span>
+<div style="display:flex;border-radius:14px;overflow:hidden;background:#eef2f5;">
+<span style="font-size:11px;padding:4px 10px;color:#767676;">실시간 미리보기</span>
+<span style="font-size:11px;padding:4px 10px;background:#268bd2;color:#fff;border-radius:14px;">제출 후 렌더링</span>
+</div>
+</div>
+<textarea placeholder="**굵게**, _기울임_, `코드`, [링크](https://example.com) 처럼 마크다운을 사용할 수 있어요." style="width:100%;box-sizing:border-box;border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;font-size:13px;font-family:inherit;min-height:78px;resize:vertical;margin-bottom:6px;color:#a3a3a3;"></textarea>
+<div style="font-size:11px;color:#a3a3a3;margin-bottom:14px;">※ 미리보기 없이 텍스트만 입력 — 등록 후에 마크다운이 렌더링됩니다.</div>
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;">
+<input type="password" placeholder="비밀번호" style="border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:8px 10px;font-size:13px;width:110px;">
+<button style="background:#268bd2;color:#fff;border:none;border-radius:16px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">댓글 등록</button>
+</div>
+</div>
+
+<div style="margin-top:14px;padding:14px 16px;background:#fff8ec;border:1px solid #f0d9a8;border-radius:8px;">
+<div style="font-size:11.5px;color:#8a6d1f;margin-bottom:10px;">요청이 많아 추가 인증이 필요합니다.</div>
+<div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(0,0,0,.15);border-radius:6px;padding:10px 12px;background:#fff;width:250px;">
+<div style="width:20px;height:20px;border:2px solid #ccc;border-radius:4px;flex:none;"></div>
+<span style="font-size:12.5px;color:#444;">사람인지 확인해주세요</span>
+<span style="margin-left:auto;font-size:9px;color:#999;">CLOUDFLARE</span>
+</div>
+</div>
+
+</div>
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -6,8 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 bundle install                  # install Ruby gems
-bundle exec jekyll serve        # local preview at http://localhost:4000
 bundle exec jekyll build        # build to _site/
+```
+
+```bash
+bundle exec jekyll serve --future  # local preview at http://localhost:4000
 ```
 
 ## Architecture

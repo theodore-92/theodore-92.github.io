@@ -1,13 +1,684 @@
 {% comment %}
-  Hydeout 테마의 기본 comments.html(Disqus)을 덮어쓰는 파일입니다.
-  Isso 서버가 준비되면 _config.yml의 isso_url 주석을 해제하세요.
-
-  Isso 서버 세팅 전까지는 아래 블록이 아무것도 렌더링하지 않습니다.
+  댓글 시스템 (Cloudflare Workers + D1 백엔드)
+  _config.yml의 comments_api_url을 설정하면 활성화됩니다.
+  Rate limit 보호: turnstile_sitekey도 함께 설정하세요.
 {% endcomment %}
-{% if site.isso_url %}
+{% if site.comments_api_url %}
+
+<style>
+  .cs-wrap {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #2b2b2b;
+    padding: 32px 0;
+  }
+
+  .cs-count {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* 댓글 카드 */
+  .cs-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .09);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+
+  .cs-card.is-admin {
+    border: 1px solid rgba(38, 139, 210, .35);
+    border-left: 4px solid #268bd2;
+    padding-left: 16px;
+  }
+
+  .cs-card.is-editing,
+  .cs-reply.is-editing {
+    border-color: #268bd2;
+  }
+
+  .cs-card.is-confirming-delete,
+  .cs-reply.is-confirming-delete {
+    border-color: #d64545;
+  }
+
+  /* 삭제된 댓글 */
+  .cs-deleted {
+    background: #efefec;
+    border: 1px dashed rgba(0, 0, 0, .15);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+
+  .cs-deleted-text {
+    font-size: 13px;
+    color: #9a9a9a;
+    font-style: italic;
+  }
+
+  /* 대댓글 */
+  .cs-reply {
+    margin-top: 12px;
+    margin-left: 14px;
+    background: #fbfaf7;
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .cs-deleted > .cs-reply {
+    background: #fff;
+  }
+
+  /* 헤더 행 */
+  .cs-header-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .cs-author {
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .cs-author-sm {
+    font-size: 13.5px;
+  }
+
+  .cs-admin-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fff;
+    background: #268bd2;
+    border-radius: 10px;
+    padding: 2px 9px;
+    line-height: 1;
+  }
+
+  .cs-date {
+    font-size: 11.5px;
+    color: #999;
+  }
+
+  .cs-state-label {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .cs-state-edit { color: #268bd2; }
+  .cs-state-del  { color: #d64545; }
+
+  /* 본문 */
+  .cs-body {
+    font-size: 14px;
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+
+  .cs-body-sm {
+    font-size: 13.5px;
+    margin-bottom: 8px;
+  }
+
+  .cs-body p,
+  .cs-preview-box p {
+    margin: 0 0 .4em;
+  }
+
+  .cs-body p:last-child,
+  .cs-preview-box p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 버튼 */
+  .cs-btn {
+    background: #eef5fb;
+    color: #268bd2;
+    border: none;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .cs-btn-primary {
+    background: #268bd2;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .cs-btn-danger {
+    background: #d64545;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 6px 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .cs-btn-ghost {
+    background: none;
+    color: #767676;
+    border: none;
+    font-size: 11.5px;
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 0;
+  }
+
+  .cs-btn-submit {
+    background: #268bd2;
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .cs-actions    { display: flex; gap: 8px; }
+  .cs-action-row { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+
+  .cs-warn {
+    font-size: 12px;
+    color: #767676;
+    margin-bottom: 8px;
+  }
+
+  /* 인라인 편집 textarea */
+  .cs-edit-ta {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #268bd2;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13.5px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 52px;
+    margin-bottom: 8px;
+  }
+
+  /* 비밀번호 인풋 (편집/삭제용) */
+  .cs-pw-input {
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11.5px;
+    width: 110px;
+    font-family: inherit;
+  }
+
+  /* 에러 메시지 */
+  .cs-err {
+    font-size: 11.5px;
+    color: #d64545;
+    margin: 4px 0;
+    display: none;
+  }
+
+  /* 댓글 작성 폼 */
+  .cs-form-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, .09);
+    border-radius: 8px;
+    padding: 18px;
+    margin-top: 18px;
+  }
+
+  .cs-form-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .cs-text-input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    margin-bottom: 10px;
+  }
+
+  .cs-form-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .cs-md-hint {
+    font-size: 11.5px;
+    color: #767676;
+  }
+
+  .cs-toggle {
+    display: flex;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #eef2f5;
+  }
+
+  .cs-toggle span {
+    font-size: 11px;
+    padding: 4px 10px;
+    color: #767676;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .cs-toggle span.active {
+    background: #268bd2;
+    color: #fff;
+    border-radius: 14px;
+  }
+
+  .cs-preview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .cs-content-ta {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 78px;
+  }
+
+  .cs-preview-box {
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #bbb;
+    background: #fbfaf7;
+    min-height: 78px;
+    overflow-y: auto;
+    word-break: break-word;
+  }
+
+  .cs-preview-box.has-content { color: #2b2b2b; }
+
+  .cs-hint {
+    font-size: 11px;
+    color: #a3a3a3;
+    margin-bottom: 14px;
+  }
+
+  .cs-form-pw {
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    width: 110px;
+    font-family: inherit;
+  }
+
+  /* Turnstile */
+  .cs-turnstile-wrap {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: #fff8ec;
+    border: 1px solid #f0d9a8;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .cs-turnstile-msg {
+    font-size: 11.5px;
+    color: #8a6d1f;
+    margin-bottom: 10px;
+  }
+</style>
+
 <section class="post-comments">
-  <script data-isso="{{ site.isso_url }}/"
-          src="{{ site.isso_url }}/js/embed.min.js"></script>
-  <section id="isso-thread"></section>
+  <div class="cs-wrap">
+    <div id="cs-count" class="cs-count"></div>
+    <div id="cs-list"></div>
+
+    <div class="cs-form-card">
+      <div class="cs-form-title">댓글 작성</div>
+      <input id="cs-name" class="cs-text-input" placeholder="이름">
+      <div class="cs-form-toolbar">
+        <span class="cs-md-hint">마크다운 지원</span>
+        <div class="cs-toggle">
+          <span id="cs-mode-live" class="active" onclick="csSetMode('live')">실시간 미리보기</span>
+          <span id="cs-mode-after" onclick="csSetMode('after')">제출 후 렌더링</span>
+        </div>
+      </div>
+      <div id="cs-live-wrap" class="cs-preview-grid">
+        <textarea
+          id="cs-content"
+          class="cs-content-ta"
+          placeholder="**굵게**, _기울임_, `코드`, [링크](https://example.com) 처럼 마크다운을 사용할 수 있어요."
+          oninput="csUpdatePreview()"
+        ></textarea>
+        <div id="cs-preview" class="cs-preview-box">미리보기가 여기에 표시됩니다.</div>
+      </div>
+      <div id="cs-after-wrap" style="display: none">
+        <textarea
+          id="cs-content-after"
+          class="cs-content-ta"
+          style="width: 100%; box-sizing: border-box"
+          placeholder="**굵게**, _기울임_, `코드`, [링크](https://example.com) 처럼 마크다운을 사용할 수 있어요."
+        ></textarea>
+        <div class="cs-hint">※ 미리보기 없이 텍스트만 입력 — 등록 후에 마크다운이 렌더링됩니다.</div>
+      </div>
+      <div id="cs-form-err" class="cs-err"></div>
+      <div class="cs-action-row" style="margin-top: 14px">
+        <input type="password" id="cs-pw" class="cs-form-pw" placeholder="비밀번호">
+        <button class="cs-btn-submit" onclick="csSubmit()">댓글 등록</button>
+      </div>
+    </div>
+
+    <div id="cs-turnstile" class="cs-turnstile-wrap">
+      <div class="cs-turnstile-msg">요청이 많아 추가 인증이 필요합니다.</div>
+      <div id="cf-turnstile"></div>
+    </div>
+  </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% if site.turnstile_sitekey %}
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+
+<script>
+  (function () {
+    const API     = '{{ site.comments_api_url }}';
+    const SLUG    = '{{ page.url }}';
+    const SITEKEY = '{{ site.turnstile_sitekey | default: "" }}';
+
+    let _comments   = [];
+    let _mode       = 'live';
+    let _tsToken    = null;
+    let _tsRendered = false;
+
+    /* ── 유틸 ──────────────────────────────────────────────── */
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderMd(s) {
+      return typeof marked !== 'undefined'
+        ? marked.parse(s, { breaks: true })
+        : esc(s).replace(/\n/g, '<br>');
+    }
+
+    function fmt(s) {
+      return s ? s.slice(0, 16).replace('T', ' ') : '';
+    }
+
+    function showErr(el, msg) {
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    /* ── Turnstile ──────────────────────────────────────────── */
+
+    window.csTsCallback = function (token) { _tsToken = token; };
+
+    function showTurnstile() {
+      const w = document.getElementById('cs-turnstile');
+      w.style.display = 'block';
+      if (SITEKEY && !_tsRendered && typeof turnstile !== 'undefined') {
+        turnstile.render('#cf-turnstile', { sitekey: SITEKEY, callback: window.csTsCallback });
+        _tsRendered = true;
+      }
+    }
+
+    /* ── 댓글 로드 & 렌더 ───────────────────────────────────── */
+
+    async function csLoad() {
+      try {
+        const res  = await fetch(API + '/comments?slug=' + encodeURIComponent(SLUG));
+        const data = await res.json();
+        _comments  = data.comments || [];
+        csRender();
+      } catch (e) {
+        document.getElementById('cs-list').innerHTML =
+          '<p style="font-size:13px;color:#999;margin:0 0 12px">댓글을 불러올 수 없습니다.</p>';
+      }
+    }
+    window.csLoad = csLoad;
+
+    function csRender() {
+      const roots = _comments.filter(c => !c.parent_id);
+      const byPid = {};
+      _comments
+        .filter(c => !!c.parent_id)
+        .forEach(c => { (byPid[c.parent_id] = byPid[c.parent_id] || []).push(c); });
+
+      document.getElementById('cs-count').textContent = '댓글 ' + _comments.length + '개';
+
+      const list = document.getElementById('cs-list');
+      list.innerHTML = '';
+      roots.forEach(c => {
+        const wrap = buildCard(c, false);
+        (byPid[c.id] || []).forEach(r => wrap.appendChild(buildCard(r, true)));
+        list.appendChild(wrap);
+      });
+    }
+
+    function buildCard(c, isReply) {
+      const el = document.createElement('div');
+      el.id = 'cs-c-' + c.id;
+
+      if (c.is_deleted) {
+        el.className = isReply ? 'cs-reply is-deleted' : 'cs-deleted';
+        el.innerHTML = '<div class="cs-deleted-text">삭제된 댓글입니다.</div>';
+        return el;
+      }
+
+      el.className = isReply ? 'cs-reply' : ('cs-card' + (c.is_owner ? ' is-admin' : ''));
+      el.innerHTML = normalHTML(c, isReply);
+      return el;
+    }
+
+    function normalHTML(c, isReply) {
+      const badge = (!isReply && c.is_owner) ? '<span class="cs-admin-badge">ADMIN</span>' : '';
+      return `
+        <div class="cs-header-row">
+          <span class="cs-author ${isReply ? 'cs-author-sm' : ''}">${esc(c.author)}</span>
+          ${badge}
+          <span class="cs-date">${fmt(c.updated_at)}</span>
+        </div>
+        <div class="cs-body ${isReply ? 'cs-body-sm' : ''}">${renderMd(c.content)}</div>
+        <div class="cs-actions">
+          <button class="cs-btn" onclick="csEditMode(${c.id})">수정</button>
+          <button class="cs-btn" onclick="csDeleteMode(${c.id})">삭제</button>
+        </div>
+      `;
+    }
+
+    /* ── 수정 모드 ──────────────────────────────────────────── */
+
+    window.csEditMode = function (id) {
+      const c      = _comments.find(x => x.id === id);
+      if (!c) return;
+      const el     = document.getElementById('cs-c-' + id);
+      const isReply = el.classList.contains('cs-reply');
+      const badge  = (!isReply && c.is_owner) ? '<span class="cs-admin-badge">ADMIN</span>' : '';
+      el.classList.add('is-editing');
+      el.innerHTML = `
+        <div class="cs-header-row">
+          <span class="cs-author ${isReply ? 'cs-author-sm' : ''}">${esc(c.author)}</span>
+          ${badge}
+          <span class="cs-date">${fmt(c.updated_at)}</span>
+          <span class="cs-state-label cs-state-edit">수정 중</span>
+        </div>
+        <textarea class="cs-edit-ta" id="cs-ta-${id}">${esc(c.content)}</textarea>
+        <div class="cs-err" id="cs-ee-${id}"></div>
+        <div class="cs-action-row">
+          <input type="password" class="cs-pw-input" id="cs-ep-${id}" placeholder="비밀번호 확인">
+          <button class="cs-btn-primary" onclick="csSave(${id})">저장</button>
+          <button class="cs-btn-ghost"   onclick="csLoad()">취소</button>
+        </div>
+      `;
+    };
+
+    /* ── 삭제 확인 모드 ─────────────────────────────────────── */
+
+    window.csDeleteMode = function (id) {
+      const c      = _comments.find(x => x.id === id);
+      if (!c) return;
+      const el     = document.getElementById('cs-c-' + id);
+      const isReply = el.classList.contains('cs-reply');
+      const badge  = (!isReply && c.is_owner) ? '<span class="cs-admin-badge">ADMIN</span>' : '';
+      el.classList.remove('is-editing');
+      el.classList.add('is-confirming-delete');
+      el.innerHTML = `
+        <div class="cs-header-row">
+          <span class="cs-author ${isReply ? 'cs-author-sm' : ''}">${esc(c.author)}</span>
+          ${badge}
+          <span class="cs-date">${fmt(c.updated_at)}</span>
+          <span class="cs-state-label cs-state-del">삭제 확인</span>
+        </div>
+        <div class="cs-body ${isReply ? 'cs-body-sm' : ''}">${renderMd(c.content)}</div>
+        <div class="cs-warn">삭제하면 되돌릴 수 없습니다. 비밀번호를 입력해 삭제를 확인해주세요.</div>
+        <div class="cs-err" id="cs-de-${id}"></div>
+        <div class="cs-action-row">
+          <input type="password" class="cs-pw-input" id="cs-dp-${id}" placeholder="비밀번호 확인">
+          <button class="cs-btn-danger" onclick="csDelete(${id})">삭제</button>
+          <button class="cs-btn-ghost"  onclick="csLoad()">취소</button>
+        </div>
+      `;
+    };
+
+    /* ── 저장 / 삭제 API 호출 ───────────────────────────────── */
+
+    window.csSave = async function (id) {
+      const ta  = document.getElementById('cs-ta-' + id);
+      const pw  = document.getElementById('cs-ep-' + id);
+      const err = document.getElementById('cs-ee-' + id);
+      if (!ta.value.trim()) { showErr(err, '내용을 입력해주세요.'); return; }
+      if (!pw.value)        { showErr(err, '비밀번호를 입력해주세요.'); return; }
+      try {
+        const res = await fetch(API + '/comments/' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: ta.value, password: pw.value }),
+        });
+        if (!res.ok) { const d = await res.json(); showErr(err, d.error || '수정에 실패했습니다.'); return; }
+        csLoad();
+      } catch (e) { showErr(err, '오류가 발생했습니다.'); }
+    };
+
+    window.csDelete = async function (id) {
+      const pw  = document.getElementById('cs-dp-' + id);
+      const err = document.getElementById('cs-de-' + id);
+      if (!pw.value) { showErr(err, '비밀번호를 입력해주세요.'); return; }
+      try {
+        const res = await fetch(API + '/comments/' + id, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw.value }),
+        });
+        if (!res.ok) { const d = await res.json(); showErr(err, d.error || '삭제에 실패했습니다.'); return; }
+        csLoad();
+      } catch (e) { showErr(err, '오류가 발생했습니다.'); }
+    };
+
+    /* ── 작성 폼 ────────────────────────────────────────────── */
+
+    window.csSetMode = function (mode) {
+      _mode = mode;
+      document.getElementById('cs-mode-live').className  = mode === 'live'  ? 'active' : '';
+      document.getElementById('cs-mode-after').className = mode === 'after' ? 'active' : '';
+      document.getElementById('cs-live-wrap').style.display  = mode === 'live'  ? 'grid'  : 'none';
+      document.getElementById('cs-after-wrap').style.display = mode === 'after' ? 'block' : 'none';
+    };
+
+    window.csUpdatePreview = function () {
+      const ta  = document.getElementById('cs-content');
+      const box = document.getElementById('cs-preview');
+      if (ta.value) {
+        box.innerHTML = renderMd(ta.value);
+        box.classList.add('has-content');
+      } else {
+        box.textContent = '미리보기가 여기에 표시됩니다.';
+        box.classList.remove('has-content');
+      }
+    };
+
+    window.csSubmit = async function () {
+      const name    = document.getElementById('cs-name').value.trim();
+      const ta      = _mode === 'live'
+        ? document.getElementById('cs-content')
+        : document.getElementById('cs-content-after');
+      const content = ta.value.trim();
+      const pw      = document.getElementById('cs-pw').value;
+      const err     = document.getElementById('cs-form-err');
+
+      if (!name)    { showErr(err, '이름을 입력해주세요.');   return; }
+      if (!content) { showErr(err, '내용을 입력해주세요.');   return; }
+      if (!pw)      { showErr(err, '비밀번호를 입력해주세요.'); return; }
+      err.style.display = 'none';
+
+      const body = { slug: SLUG, author: name, content, password: pw };
+      if (_tsToken) body.cf_turnstile_response = _tsToken;
+
+      try {
+        const res = await fetch(API + '/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (res.status === 429) {
+          showTurnstile();
+          showErr(err, '요청이 너무 많습니다. 아래 인증을 완료해주세요.');
+          return;
+        }
+        if (!res.ok) { const d = await res.json(); showErr(err, d.error || '댓글 등록에 실패했습니다.'); return; }
+
+        document.getElementById('cs-name').value = '';
+        document.getElementById('cs-content').value = '';
+        document.getElementById('cs-content-after').value = '';
+        document.getElementById('cs-pw').value = '';
+        csUpdatePreview();
+        csLoad();
+      } catch (e) { showErr(err, '오류가 발생했습니다.'); }
+    };
+
+    csLoad();
+  })();
+</script>
+
 {% endif %}
