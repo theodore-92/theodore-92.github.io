@@ -46,8 +46,9 @@ hydeout:
 # 댓글 설정 (Cloudflare Workers 백엔드)
 # Workers 배포 후 아래 주석 해제 후 입력
 # ===================================
-# comments_api_url: "https://your-worker.workers.dev"
-# turnstile_sitekey: "YOUR_SITE_KEY"   # Rate limit 보호용 (선택)
+comments_api_url: "https://blog-comments.theodore-92.workers.dev"
+#comments_api_url: "http://localhost:8787"
+turnstile_sitekey: "0x4AAAAAADyRgLlrayxl19Ei"   # Rate limit 보호용 (선택)
 
 # ===================================
 # 마크다운/빌드 설정

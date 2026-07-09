@@ -11,10 +11,16 @@
 - `author.name`
 
 ## 3. 로컬에서 미리보기 (선택)
+
 ```bash
-bundle install
-bundle exec jekyll serve
+bundle install                  # install Ruby gems
+bundle exec jekyll build        # build to _site/
 ```
+
+```bash
+bundle exec jekyll serve --future  # local preview at http://localhost:4000
+```
+
 http://localhost:4000 에서 확인 가능합니다.
 
 ## 4. GitHub Pages 배포 설정

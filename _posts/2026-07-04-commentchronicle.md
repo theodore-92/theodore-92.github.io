@@ -130,3 +130,16 @@ CREATE TABLE rate_limit (
  전체 페이지인지 단일 모듈인지 정하고 3개의 시안을 만들도록 주문했다. 
  
  이래저래 요구사항을 주고 얼추 대부분의 케이스를 커버할 수 있는 상태가 되었고, 내 커스텀을 몇가지 넣어서 완성했다. 아쉽게도 글을 작성하는 당시에는 React만 code와 연결하여 다이렉트로 수정이 가능한 것 처럼 보여서, hand-off 정보를 담은 패키지를 만들어서 다시 클로드 코드에게 먹였다.
+
+#### Comment Backend
+
+이 부분도 기본 구조만 내가 잡고 절찬리에 사용중인 클로드를 사용했다.
+4건의 기본 요구사항과 쿼리뭉치, 구현 방식 (랭글러를 사용한 worker 세팅 등)..을 뭉뜽그려서 백엔드를 개발할 claude code에 전달할 md 문서를 하나 만들고, 이를 통해 개발하였다.
+
+{% include img.html name="2026-07-04-commentchronicle/spec.png" alt="spec.md on ide" caption="SPEC.md의 일부. 굳이 사족을 달아야 했니?" %}
+
+랭글러를 통해 배포하고, SECRET을 주입한 뒤 약간의 로컬 개발 이후 테스트했다. 
+
+{% include img.html name="2026-07-04-commentchronicle/local.png" alt="local test" caption="" %}
+
+이래저래 테스트했다. turnstile이 개입해버려서 로컬 환경을 따로 잡아주는 사고가 있었지만, 큰 문제 없이 개발된 듯. 마이너한 CSS 수정과 XSS 대응 등 잡아주고 라이브 테스트.
