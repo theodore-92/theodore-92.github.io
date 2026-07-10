@@ -328,6 +328,14 @@
     margin-bottom: 6px;
   }
 
+  .cs-preview-grid.mode-after {
+    grid-template-columns: 1fr;
+  }
+
+  .cs-preview-grid.mode-after .cs-preview-box {
+    display: none;
+  }
+
   .cs-content-ta {
     width: 100%;
     box-sizing: border-box;
@@ -403,7 +411,7 @@
           <span id="cs-mode-after" onclick="csSetMode('after')">제출 후 렌더링</span>
         </div>
       </div>
-      <div id="cs-live-wrap" class="cs-preview-grid">
+      <div id="cs-editor-wrap" class="cs-preview-grid">
         <textarea
           id="cs-content"
           class="cs-content-ta"
@@ -412,15 +420,7 @@
         ></textarea>
         <div id="cs-preview" class="cs-preview-box">미리보기가 여기에 표시됩니다.</div>
       </div>
-      <div id="cs-after-wrap" style="display: none">
-        <textarea
-          id="cs-content-after"
-          class="cs-content-ta"
-          style="width: 100%; box-sizing: border-box"
-          placeholder="**굵게**, _기울임_, `코드`, [링크](https://example.com) 처럼 마크다운을 사용할 수 있어요."
-        ></textarea>
-        <div class="cs-hint">※ 미리보기 없이 텍스트만 입력 — 등록 후에 마크다운이 렌더링됩니다.</div>
-      </div>
+      <div id="cs-after-hint" class="cs-hint" style="display: none">※ 등록 후에 마크다운이 렌더링됩니다.</div>
       <div id="cs-form-err" class="cs-err"></div>
       <div class="cs-action-row" style="margin-top: 14px">
         <input type="password" id="cs-pw" class="cs-form-pw" placeholder="비밀번호">
@@ -720,8 +720,8 @@
       _mode = mode;
       document.getElementById('cs-mode-live').className  = mode === 'live'  ? 'active' : '';
       document.getElementById('cs-mode-after').className = mode === 'after' ? 'active' : '';
-      document.getElementById('cs-live-wrap').style.display  = mode === 'live'  ? 'grid'  : 'none';
-      document.getElementById('cs-after-wrap').style.display = mode === 'after' ? 'block' : 'none';
+      document.getElementById('cs-editor-wrap').classList.toggle('mode-after', mode === 'after');
+      document.getElementById('cs-after-hint').style.display = mode === 'after' ? 'block' : 'none';
     };
 
     window.csUpdatePreview = function () {
@@ -738,10 +738,7 @@
 
     window.csSubmit = async function () {
       const name    = document.getElementById('cs-name').value.trim();
-      const ta      = _mode === 'live'
-        ? document.getElementById('cs-content')
-        : document.getElementById('cs-content-after');
-      const content = ta.value.trim();
+      const content = document.getElementById('cs-content').value.trim();
       const pw      = document.getElementById('cs-pw').value;
       const err     = document.getElementById('cs-form-err');
 
@@ -768,7 +765,6 @@
 
         document.getElementById('cs-name').value = '';
         document.getElementById('cs-content').value = '';
-        document.getElementById('cs-content-after').value = '';
         document.getElementById('cs-pw').value = '';
         csUpdatePreview();
         csLoad();
