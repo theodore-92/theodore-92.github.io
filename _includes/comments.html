@@ -462,9 +462,26 @@
         .replace(/"/g, '&quot;');
     }
 
+    // CommonMark는 언더스코어 강조(_x_, __x__)를 "단어 중간"에서는 인식하지 않는데,
+    // 한글은 띄어쓰기 없이 다른 글자와 붙는 경우가 많아 marked가 이를 단어 중간으로
+    // 오인해 _기울임_ 같은 표기가 렌더링되지 않는다. 별표(*)는 이 제약이 없으므로
+    // 렌더링 전에 언더스코어 강조를 별표 강조로 치환해 우회한다.
+    function preprocessUnderscoreEmphasis(s) {
+      const blocks = [];
+      let out = s.replace(/(```[\s\S]*?```|`[^`\n]+`)/g, function (m) {
+        blocks.push(m);
+        return '@@CODE' + (blocks.length - 1) + '@@';
+      });
+
+      out = out.replace(/__([^_\n]+?)__/g, '**$1**');
+      out = out.replace(/_([^_\n]+?)_/g, '*$1*');
+
+      return out.replace(/@@CODE(\d+)@@/g, function (_, i) { return blocks[i]; });
+    }
+
     function renderMd(s) {
       const html = typeof marked !== 'undefined'
-        ? marked.parse(s, { breaks: true })
+        ? marked.parse(preprocessUnderscoreEmphasis(s), { breaks: true })
         : esc(s).replace(/\n/g, '<br>');
       return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html) : html;
     }
