@@ -142,4 +142,61 @@ CREATE TABLE rate_limit (
 
 {% include img.html name="2026-07-04-commentchronicle/local.png" alt="local test" caption="" %}
 
-이래저래 테스트했다. turnstile이 개입해버려서 로컬 환경을 따로 잡아주는 사고가 있었지만, 큰 문제 없이 개발된 듯. 마이너한 CSS 수정과 XSS 대응 등 잡아주고 라이브 테스트.
+이래저래 테스트했다. turnstile이 개입해버려서 로컬 환경을 따로 잡아주는 사고가 있었지만, 큰 문제 없이 개발된 듯. 마이너한 CSS 수정과 XSS 대응 등 잡아주고 Go Live
+
+#### Error on Live
+
+문제가 없어보였지만 결국 문제가 생김.
+
+{% include img.html name="2026-07-04-commentchronicle/worker.png" alt="cannot reach" caption="?????????" %}
+
+아무리 호출해도 빈 워커처럼 반응했다.
+뭔가 내용이 있으면 OPTIONS 메서드를 던졌을때는 정상 반응이 왔어야했는데, 이 404페이지만 반복해서 나타났다.
+
+배포 점검에 문제가 있었겠거니 하고 하루를 기다렸는데도 동일한 반응이 나타났다.
+
+클라우드플레어에 티켓 접수하려고 들어갔더니 AI가 있었다. 혹시 몰라서 한번 던져봤는데, 의외로 꽤 오랜시간이 걸렸지만 정확히 원인을 찾아줬다. 상황이 꽤 명확해서 그런 듯.
+
+{% include img.html name="2026-07-04-commentchronicle/cf_ai.png" alt="cloudflare ai response" caption="" %}
+
+`wrangler.toml`에 아래 코드를 적어 넣었다.
+하는 김에 observability 관련 코드도 함께 집어넣었다.
+
+```toml
+compatibility_flags = ["global_fetch_strictly_public"]
+
+... 
+
+[observability.logs]  
+enabled = true  
+invocation_logs = true  
+  
+[observability.traces]  
+enabled = true
+```
+
+그리고 재시도. 
+
+{% include img.html name="2026-07-04-commentchronicle/commentworks.png" alt="comment is works!" caption="드디어 라이브 동작" %}
+
+신나서 몇 개 달아봤는데, 어... 오너 계정이 아닌 해시가 들어왔는데도 메일이 안 왔다.
+DB를 까보니 제대로 `isOwner=false` 인 값이 들어와 있었다. 
+당연하다. 댓글 창에 admin 딱지가 안 달려 있었다. 멍청하긴.
+
+추적해보니, resend에서 403이 뜨고있었다. 
+
+{% include img.html name="2026-07-04-commentchronicle/rejectedmail.png" alt="mail send rejected" caption="Testing domain?" %}
+
+`resend.dev` 도메인은 테스팅 용도로만 제공되어 내 메일(가입된 메일)에만 발송된다고 한다. 
+
+Domains에 가서 새로 내 도메인을 등록하고, DKIM과 SPF를 등록하였다. 덕분에 간만에 가비아 들어가봤다... 이 부분도 언젠간 Cloudflare로 옮기고 싶다.
+
+propagation을 기다리는 약간의 시간이 지나고, DNS/Domian Verified를 받고... 재시도!
+
+{% include img.html name="2026-07-04-commentchronicle/mailrcvd.png" alt="mail successfully received" caption="Ta-da!" %}
+
+이제 진짜 작업이 끝났다. 
+
+  
+
+#### 삽질 기간 : 2026-07-04 ~ 2026-07-10

@@ -665,13 +665,16 @@
       if (!pw)      { showErr(err, '비밀번호를 입력해주세요.'); return; }
       err.style.display = 'none';
 
+      const body = { post_slug: SLUG, author: name, content, password: pw, parent_id: parentId };
+      if (_tsToken) body.captcha_token = _tsToken;
+
       try {
         const res = await fetch(API + '/comments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ post_slug: SLUG, author: name, content, password: pw, parent_id: parentId }),
+          body: JSON.stringify(body),
         });
-        if (res.status === 429) { showTurnstile(); showErr(err, '요청이 너무 많습니다. 아래 인증을 완료해주세요.'); return; }
+        if (res.status === 429) { showTurnstile(); showErr(err, '요청이 너무 많습니다. 아래 인증을 완료한 뒤 다시 등록을 눌러주세요.'); return; }
         if (!res.ok) { const d = await res.json(); showErr(err, d.error || '등록에 실패했습니다.'); return; }
         csLoad();
       } catch (e) { showErr(err, '오류가 발생했습니다.'); }
@@ -748,7 +751,7 @@
       err.style.display = 'none';
 
       const body = { post_slug: SLUG, author: name, content, password: pw };
-      if (_tsToken) body.cf_turnstile_response = _tsToken;
+      if (_tsToken) body.captcha_token = _tsToken;
 
       try {
         const res = await fetch(API + '/comments', {

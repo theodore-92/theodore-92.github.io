@@ -1,7 +1,7 @@
 # ===================================
 # 사이트 기본 정보
 # ===================================
-title: "github pages"                  # 사이트 제목으로 변경하세요
+title: "Bear's den"                  # 사이트 제목으로 변경하세요
 description: "Backend developer,<br>Part-time traveler"  # 한 줄 소개로 변경하세요
 url: "https://theodore-92.github.io"   # 본인 GitHub Pages 주소로 변경하세요
 baseurl: ""
