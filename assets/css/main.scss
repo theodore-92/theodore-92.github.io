@@ -66,3 +66,79 @@ $link-color: #268bd2;
     color: #777;
   }
 }
+
+// ===================================
+//  추가 스타일
+// ===================================
+h4, h5, h6 {
+  margin-top: 1.5rem;
+}
+
+// ===================================
+// 글 목차 (스크롤 네비게이션) - PC 전용
+// 화면이 충분히 넓을 때만 노출되며, 목차가 준비되기 전(is-ready 없음)이나
+// 제목이 부족해 생성되지 않은 경우엔 빈 박스가 보이지 않도록 숨김 처리
+// ===================================
+$post-nav-breakpoint: 87.5em; // 1400px 기준, 사이드바 + 본문 + 목차가 겹치지 않는 폭
+
+.post-nav {
+  display: none;
+}
+
+@media (min-width: $post-nav-breakpoint) {
+  .post-nav {
+    display: block;
+    position: fixed;
+    top: 50%;
+    right: 2rem;
+    max-width: 14rem;
+    max-height: 70vh;
+    overflow-y: auto;
+    transform: translateY(-50%);
+    z-index: 10;
+
+    &:not(.is-ready) {
+      display: none;
+    }
+  }
+
+  .post-nav-list {
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid $border-color;
+    list-style: none;
+  }
+
+  .post-nav-item a {
+    display: block;
+    overflow: hidden;
+    padding: 0.3rem 0 0.3rem 0.9rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: $gray-4;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      color: $link-color;
+      text-decoration: none;
+    }
+
+    &.active {
+      border-left-color: $link-color;
+      color: $link-color;
+      font-weight: 700;
+    }
+  }
+
+  .post-nav-h3 a {
+    padding-left: 1.6rem;
+  }
+
+  .post-nav-h4 a {
+    padding-left: 2.3rem;
+  }
+}

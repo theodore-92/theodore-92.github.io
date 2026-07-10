@@ -1,0 +1,78 @@
+{% comment %}
+  글 목차 (스크롤 네비게이션, PC 전용)
+  본문(.post-body) 안의 h2/h3/h4를 읽어 목차를 만들고,
+  스크롤 위치에 따라 현재 섹션을 강조 표시한다.
+  제목이 2개 미만이면 표시하지 않는다.
+{% endcomment %}
+<nav class="post-nav" id="post-nav" aria-label="글 목차">
+  <ol class="post-nav-list" id="post-nav-list"></ol>
+</nav>
+
+<script>
+(function () {
+  document.addEventListener('DOMContentLoaded', function () {
+    var article = document.querySelector('.post-body');
+    var nav = document.getElementById('post-nav');
+    var list = document.getElementById('post-nav-list');
+    if (!article || !nav || !list) return;
+
+    var headings = article.querySelectorAll('h2, h3, h4');
+    if (headings.length < 2) return;
+
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s가-힣-]/g, '')
+        .replace(/\s+/g, '-');
+    }
+
+    var usedIds = {};
+    var items = [];
+
+    headings.forEach(function (heading, i) {
+      if (!heading.id) {
+        var base = slugify(heading.textContent) || ('section-' + i);
+        var id = base;
+        var n = 1;
+        while (usedIds[id] || document.getElementById(id)) {
+          id = base + '-' + (n++);
+        }
+        heading.id = id;
+      }
+      usedIds[heading.id] = true;
+
+      var li = document.createElement('li');
+      li.className = 'post-nav-item post-nav-' + heading.tagName.toLowerCase();
+
+      var a = document.createElement('a');
+      a.href = '#' + heading.id;
+      a.textContent = heading.textContent;
+      li.appendChild(a);
+      list.appendChild(li);
+
+      items.push({ heading: heading, link: a });
+    });
+
+    nav.classList.add('is-ready');
+
+    function setActive(id) {
+      items.forEach(function (item) {
+        item.link.classList.toggle('active', item.heading.id === id);
+      });
+    }
+
+    if ('IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+      headings.forEach(function (heading) { observer.observe(heading); });
+    } else {
+      setActive(items[0].heading.id);
+    }
+  });
+})();
+</script>
