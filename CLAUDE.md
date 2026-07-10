@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow
+
+**Never create commits.** Leave all changes uncommitted in the working tree — the user reviews and commits everything themselves.
+
 ## Commands
 
 ```bash
@@ -15,7 +19,7 @@ bundle exec jekyll serve --future  # local preview at http://localhost:4000
 
 ## Architecture
 
-Jekyll static blog deployed to GitHub Pages via `main` branch. Theme: [Hydeout](https://github.com/fongandrew/hydeout) loaded as a `remote_theme` — theme source is not in this repo.
+Jekyll static blog deployed to GitHub Pages via `main` branch. Theme: [Hydeout](https://github.com/fongandrew/hydeout) loaded as a `remote_theme` — theme source is not in this repo. Local files under `_layouts/` with the same name as a theme layout (e.g. `post.html`) override that theme layout; this is how post-specific additions (like the TOC nav below) get injected without vendoring the whole theme.
 
 **Posts** go in `_posts/YYYY-MM-DD-title.md` with this front matter:
 ```markdown
@@ -33,7 +37,9 @@ tags: [태그1, 태그2]
 ```
 Image files live in `assets/images/posts/<YYYY-MM-DD-post>/`. The include resolves the base URL from `site.image_base_url` in `_config.yml` — changing that one value migrates all images site-wide.
 
-**Comments** (`_includes/comments.html`) override Hydeout's Disqus default. Comments are disabled until `isso_url` is set in `_config.yml`.
+**Comments** (`_includes/comments.html`) override Hydeout's Disqus default with a custom Cloudflare Workers + D1 backend (nested replies, password-protected edit/delete, live or post-submit markdown preview). Enabled by setting `comments_api_url` in `_config.yml`; `turnstile_sitekey` optionally adds Turnstile verification once the API starts rate-limiting a client. The comment form's markdown textarea (`#cs-content`) is shared between the "실시간 미리보기"/"제출 후 렌더링" toggle — switching modes only shows/hides the `#cs-preview` panel, it does not swap textareas, so content always stays in sync.
+
+**Post TOC nav** (`_layouts/post.html` + `_includes/post-nav.html`) renders a fixed scroll-spy table of contents from a post's `h2`/`h3`/`h4` headings, generated client-side and highlighted via `IntersectionObserver`. Only applies to post pages (about/tags/index use different layouts, so they never include it) and only above the `$post-nav-breakpoint` (87.5em) in `assets/css/main.scss`, so it's desktop-only and never shows on mobile.
 
 **CSS** customization is done via SASS variables declared before `@import "hydeout"` in `assets/css/main.scss`. Key variables: `$sidebar-bg-color`, `$sidebar-fg-color`, `$link-color`, `$layout-reverse`.
 
